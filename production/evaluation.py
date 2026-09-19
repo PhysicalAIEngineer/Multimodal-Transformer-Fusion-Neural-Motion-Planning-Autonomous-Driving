@@ -48,6 +48,46 @@ def evaluate_sample(
     return metrics
 
 
+def evaluate_driving_episode(
+    *,
+    completed_distance_m: float,
+    route_distance_m: float,
+    collision_count: int = 0,
+    red_light_violations: int = 0,
+    lane_departures: int = 0,
+    intervention_recovery_count: int = 0,
+    offroad_frames: int = 0,
+    total_frames: int = 0,
+) -> dict[str, float | int]:
+    """Convert CARLA episode events into driving/planning metrics."""
+    completion = (
+        0.0
+        if route_distance_m <= 0
+        else min(1.0, max(0.0, completed_distance_m / route_distance_m))
+    )
+    return {
+        "route_completion": completion,
+        "collision_count": int(collision_count),
+        "red_light_violations": int(red_light_violations),
+        "lane_departures": int(lane_departures),
+        "intervention_recovery_count": int(intervention_recovery_count),
+        "offroad_rate": (
+            0.0
+            if total_frames <= 0
+            else float(offroad_frames / total_frames)
+        ),
+        "trajectory_collision_rate": float(collision_count > 0),
+    }
+
+
+def evaluate_runtime_samples(samples: list[dict[str, float]]) -> dict[str, float]:
+    """Aggregate preprocessing, inference, rendering and end-to-end timing."""
+    accumulator = EvaluationAccumulator()
+    for sample in samples:
+        accumulator.add_runtime_sample(**sample)
+    return accumulator.summary()["system"]
+
+
 def aggregate_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
     """Aggregate JSON-compatible episode/sample records into one report."""
     accumulator = EvaluationAccumulator()
@@ -87,8 +127,18 @@ def aggregate_jsonl(input_path: str | Path, output_path: str | Path) -> dict[str
         if line.strip()
     ]
     report = aggregate_rows(rows)
-    Path(output_path).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    Path(output_path).write_text(
+        json.dumps(report, indent=2) + "\n",
+        encoding="utf-8",
+    )
     return report
+
+
+def save_json_report(report: dict[str, Any], output_path: str | Path) -> None:
+    Path(output_path).write_text(
+        json.dumps(report, indent=2) + "\n",
+        encoding="utf-8",
+    )
 
 
 def compare_fusion_modes(

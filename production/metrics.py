@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from statistics import mean
-from collections.abc import Iterable, Sequence
 from typing import Any
 
 import numpy as np
@@ -41,21 +41,32 @@ def root_mean_squared_error(prediction: Any, target: Any) -> float:
     return float(np.sqrt(np.mean((pred - truth) ** 2)))
 
 
-def mean_iou(prediction: Any, target: Any, num_classes: int | None = None) -> float:
+def mean_iou(
+    prediction: Any,
+    target: Any,
+    num_classes: int | None = None,
+    ignore_index: int | None = None,
+) -> float:
     pred = np.asarray(prediction)
     truth = np.asarray(target)
     if pred.shape != truth.shape:
         raise ValueError(f"Shape mismatch: {pred.shape} vs {truth.shape}")
-    classes = range(num_classes) if num_classes is not None else np.unique(
-        np.concatenate([pred.ravel(), truth.ravel()])
-    )
-    values = []
+
+    if num_classes is None:
+        classes = np.unique(np.concatenate([pred.ravel(), truth.ravel()]))
+    else:
+        classes = range(num_classes)
+
+    values: list[float] = []
     for cls in classes:
+        if ignore_index is not None and int(cls) == ignore_index:
+            continue
         p = pred == cls
         t = truth == cls
         union = np.logical_or(p, t).sum()
         if union:
-            values.append(np.logical_and(p, t).sum() / union)
+            intersection = np.logical_and(p, t).sum()
+            values.append(float(intersection / union))
     return 0.0 if not values else float(np.mean(values))
 
 
@@ -73,6 +84,14 @@ def waypoint_fde(prediction: Any, target: Any) -> float:
     if pred.shape != truth.shape:
         raise ValueError(f"Shape mismatch: {pred.shape} vs {truth.shape}")
     return float(np.linalg.norm(pred[-1] - truth[-1]))
+
+
+def trajectory_collision_rate(flags: Iterable[bool]) -> float:
+    return event_rate(flags)
+
+
+def offroad_rate(flags: Iterable[bool]) -> float:
+    return event_rate(flags)
 
 
 def event_rate(flags: Iterable[bool]) -> float:
@@ -95,6 +114,18 @@ def percentile(values: Sequence[float], p: float) -> float:
     return 0.0 if arr.size == 0 else float(np.percentile(arr, p))
 
 
+def fps_from_latencies(latencies_ms: Sequence[float]) -> float:
+    values = [float(x) for x in latencies_ms]
+    if not values or mean(values) <= 0:
+        return 0.0
+    return 1000.0 / mean(values)
+
+
+def gpu_memory_peak(memory_mb: Sequence[float]) -> float | None:
+    values = [float(x) for x in memory_mb]
+    return None if not values else max(values)
+
+
 @dataclass
 class RuntimeSample:
     preprocessing_ms: float
@@ -103,8 +134,14 @@ class RuntimeSample:
     end_to_end_ms: float | None = None
 
     def __post_init__(self) -> None:
+        self.preprocessing_ms = float(self.preprocessing_ms)
+        self.inference_ms = float(self.inference_ms)
+        self.rendering_ms = float(self.rendering_ms)
         if self.end_to_end_ms is None:
-            self.end_to_end_ms = self.preprocessing_ms + self.inference_ms + self.rendering_ms
+            self.end_to_end_ms = (
+                self.preprocessing_ms + self.inference_ms + self.rendering_ms
+            )
+        self.end_to_end_ms = float(self.end_to_end_ms)
 
 
 @dataclass
@@ -132,36 +169,63 @@ class EvaluationAccumulator:
 
     def summary(self) -> dict[str, Any]:
         samples = self.runtime_samples
-        e2e = [float(x.end_to_end_ms or 0.0) for x in samples]
+        e2e = [x.end_to_end_ms for x in samples]
+        planning_completion = (
+            mean(self.route_completion_values)
+            if self.route_completion_values
+            else None
+        )
         return {
             "perception": {
                 "3d_detection_ap": mean(self.detection_ap) if self.detection_ap else None,
-                "bev_detection_ap": mean(self.bev_detection_ap) if self.bev_detection_ap else None,
-                "segmentation_mIoU": mean(self.segmentation_miou) if self.segmentation_miou else None,
+                "bev_detection_ap": mean(self.bev_detection_ap)
+                if self.bev_detection_ap
+                else None,
+                "segmentation_mIoU": mean(self.segmentation_miou)
+                if self.segmentation_miou
+                else None,
                 "depth_MAE": mean(self.depth_mae) if self.depth_mae else None,
                 "depth_RMSE": mean(self.depth_rmse) if self.depth_rmse else None,
             },
             "planning": {
-                "waypoint_ADE": mean(self.waypoint_ade_values) if self.waypoint_ade_values else None,
-                "waypoint_FDE": mean(self.waypoint_fde_values) if self.waypoint_fde_values else None,
-                "trajectory_collision_rate": event_rate(self.trajectory_collision_flags),
-                "route_completion": mean(self.route_completion_values)
-                if self.route_completion_values
+                "waypoint_ADE": mean(self.waypoint_ade_values)
+                if self.waypoint_ade_values
                 else None,
-                "offroad_rate": event_rate(self.offroad_flags),
+                "waypoint_FDE": mean(self.waypoint_fde_values)
+                if self.waypoint_fde_values
+                else None,
+                "trajectory_collision_rate": trajectory_collision_rate(
+                    self.trajectory_collision_flags
+                ),
+                "route_completion": planning_completion,
+                "offroad_rate": offroad_rate(self.offroad_flags),
             },
             "system": {
-                "FPS": 0.0 if not e2e or mean(e2e) <= 0 else 1000.0 / mean(e2e),
+                "FPS": fps_from_latencies(e2e),
                 "end_to_end_latency_ms_p50": percentile(e2e, 50),
                 "end_to_end_latency_ms_p95": percentile(e2e, 95),
-                "preprocessing_latency_ms_p50": percentile([x.preprocessing_ms for x in samples], 50),
-                "preprocessing_latency_ms_p95": percentile([x.preprocessing_ms for x in samples], 95),
-                "model_inference_latency_ms_p50": percentile([x.inference_ms for x in samples], 50),
-                "model_inference_latency_ms_p95": percentile([x.inference_ms for x in samples], 95),
-                "rendering_latency_ms_p50": percentile([x.rendering_ms for x in samples], 50),
-                "rendering_latency_ms_p95": percentile([x.rendering_ms for x in samples], 95),
-                "gpu_memory_mb": mean(self.gpu_memory_mb) if self.gpu_memory_mb else None,
-                "gpu_memory_peak_mb": max(self.gpu_memory_mb) if self.gpu_memory_mb else None,
+                "preprocessing_latency_ms_p50": percentile(
+                    [x.preprocessing_ms for x in samples], 50
+                ),
+                "preprocessing_latency_ms_p95": percentile(
+                    [x.preprocessing_ms for x in samples], 95
+                ),
+                "model_inference_latency_ms_p50": percentile(
+                    [x.inference_ms for x in samples], 50
+                ),
+                "model_inference_latency_ms_p95": percentile(
+                    [x.inference_ms for x in samples], 95
+                ),
+                "rendering_latency_ms_p50": percentile(
+                    [x.rendering_ms for x in samples], 50
+                ),
+                "rendering_latency_ms_p95": percentile(
+                    [x.rendering_ms for x in samples], 95
+                ),
+                "gpu_memory_mb": mean(self.gpu_memory_mb)
+                if self.gpu_memory_mb
+                else None,
+                "gpu_memory_peak_mb": gpu_memory_peak(self.gpu_memory_mb),
                 "gpu_utilization_pct": mean(self.gpu_utilization_pct)
                 if self.gpu_utilization_pct
                 else None,
@@ -170,9 +234,7 @@ class EvaluationAccumulator:
                 "collision_count": event_count(self.collision_flags),
                 "red_light_violations": event_count(self.red_light_flags),
                 "lane_departures": event_count(self.lane_departure_flags),
-                "route_completion": mean(self.route_completion_values)
-                if self.route_completion_values
-                else None,
+                "route_completion": planning_completion,
                 "intervention_recovery_count": event_count(self.intervention_flags),
             },
         }
