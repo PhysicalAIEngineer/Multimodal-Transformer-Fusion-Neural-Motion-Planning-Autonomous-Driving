@@ -253,9 +253,7 @@ def main() -> None:
     rows = [record.as_evaluation_row() for record in records]
     jsonl_path = output_dir / "evaluation_records.jsonl"
     jsonl_path.write_text(
-        "
-".join(json.dumps(row) for row in rows) + "
-",
+        "\\n".join(json.dumps(row) for row in rows) + "\\n",
         encoding="utf-8",
     )
     (output_dir / "episodes.json").write_text(
