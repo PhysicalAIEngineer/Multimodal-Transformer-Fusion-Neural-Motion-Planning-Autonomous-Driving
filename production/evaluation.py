@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-"""Evaluation orchestration and fusion-ablation utilities."""
-
 import json
 from pathlib import Path
 from typing import Any
