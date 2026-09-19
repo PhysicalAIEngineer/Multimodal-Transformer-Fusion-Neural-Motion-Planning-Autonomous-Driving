@@ -1,0 +1,26 @@
+{
+  "experiment_name": "carla_multimodal_baseline",
+  "seed": 1,
+  "carla_version": "REPLACE_WITH_MEASURED_VERSION",
+  "map": "REPLACE_WITH_MAP",
+  "routes": [],
+  "checkpoint_sha256": "REPLACE_WITH_REAL_CHECKPOINT_HASH",
+  "commit_sha": "REPLACE_WITH_GIT_COMMIT",
+  "sensor_config": {
+    "camera_width": 960,
+    "camera_height": 480,
+    "camera_fov_deg": 120,
+    "carla_fps": 20,
+    "lidar_max_points": 40000
+  },
+  "hardware": {
+    "gpu": "REPLACE_WITH_GPU",
+    "gpu_memory_gb": 0
+  },
+  "evaluation": {
+    "episodes": 0,
+    "fixed_weather": true,
+    "deterministic_routes": true
+  },
+  "notes": "Template only. Replace placeholders with values from the actual run."
+}
