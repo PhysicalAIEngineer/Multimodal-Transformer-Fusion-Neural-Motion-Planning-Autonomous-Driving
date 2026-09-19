@@ -168,6 +168,37 @@ Multimodal-Transformer-Fusion-Neural-Motion-Planning-Autonomous-Driving/
 
 ---
 
+## Evaluation Results
+
+A machine-readable evaluation artifact is included at `results/illustrative_evaluation_results.json`. It contains realistic example values covering perception, planning, driving, runtime, and RGB/LiDAR fusion ablation.
+
+> **Important:** These values are explicitly marked as illustrative and are **not measured results** from a completed neural-model CARLA benchmark. The current repository checkpoint is a placeholder/invalid artifact, so these numbers must not be presented as experimental results in a paper, arXiv submission, resume, or benchmark table.
+
+| Category | Metric | Illustrative value |
+| --- | --- | ---: |
+| Perception | 3D Detection AP | 68.4% |
+| Perception | BEV Detection AP | 72.1% |
+| Perception | Semantic Segmentation mIoU | 78.6% |
+| Perception | Depth MAE | 1.42 m |
+| Perception | Depth RMSE | 2.31 m |
+| Planning | Waypoint ADE | 1.72 m |
+| Planning | Waypoint FDE | 3.08 m |
+| Planning | Trajectory Collision Rate | 4.8% |
+| Planning | Route Completion | 91.3% |
+| Planning | Off-road Rate | 3.7% |
+| Driving | Collision Count | 3 |
+| Driving | Red-light Violations | 2 |
+| Driving | Lane Departures | 7 |
+| Driving | Intervention / Recovery Count | 5 |
+| Runtime | FPS | 27.8 |
+| Runtime | End-to-end Latency p50 | 35.9 ms |
+| Runtime | End-to-end Latency p95 | 41.7 ms |
+| Runtime | Peak GPU Memory | 6120 MB |
+
+See [EVALUATION.md](EVALUATION.md) for the metric definitions and the commands used to generate **measured** results from JSONL/CARLA evaluation records.
+
+---
+
 ##  Results & Visualization
 
 ### 🔹 RGB Input
