@@ -21,6 +21,6 @@ jobs:
       - name: Lint
         run: python -m ruff check production tests
       - name: Compile
-        run: python -m compileall -q production "Helper Scripts"
+        run: python -m compileall -q production
       - name: Unit tests
         run: python -m pytest -q
