@@ -12,8 +12,7 @@ import argparse
 import json
 import math
 import random
-import time
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
@@ -96,12 +95,12 @@ class CarlaEvaluationRunner:
     @staticmethod
     def sensor_frame(image: Any) -> np.ndarray:
         array = np.frombuffer(image.raw_data, dtype=np.uint8)
-        return array.reshape(image.height, image.width, 4)[:, :, :3][:, :, ::-1]
+        return array.reshape(image.height, image.width, 4)[:, :, :3][:, :, ::-1].copy()
 
     @staticmethod
     def lidar_frame(measurement: Any) -> np.ndarray:
         raw = np.frombuffer(measurement.raw_data, dtype=np.float32)
-        return raw.reshape(-1, 4)[:, :3]
+        return raw.reshape(-1, 4)[:, :3].copy()
 
     def _spawn_sensor(self, world: Any, blueprint_id: str, transform: Any, vehicle: Any) -> Any:
         bp = world.get_blueprint_library().find(blueprint_id)
