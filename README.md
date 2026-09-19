@@ -59,7 +59,8 @@ Planning Head:
 
 ##  Project Structure
 
-``Multimodal-Transformer-Fusion-Neural-Motion-Planning-Autonomous-Driving/
+``
+Multimodal-Transformer-Fusion-Neural-Motion-Planning-Autonomous-Driving/
 │
 ├── .github/
 │   ├── ISSUE_TEMPLATE/
