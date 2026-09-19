@@ -1,19 +1,21 @@
 from __future__ import annotations
 
-"""Generate a publication/portfolio-friendly evaluation report from JSON output."""
+"""Generate a Markdown evaluation report from measured JSON."""
 
 import argparse
 import json
 from pathlib import Path
 
 
-def markdown_table(section: dict) -> str:
-    lines = ["| Metric | Measured value |", "| --- | ---: |"]
+def markdown_table(section: dict[str, object]) -> str:
+    lines = [
+        "| Metric | Measured value |",
+        "| --- | ---: |",
+    ]
     for key, value in section.items():
         if value is not None:
             lines.append(f"| {key} | {value} |")
-    return "
-".join(lines)
+    return "\n".join(lines)
 
 
 def main() -> None:
@@ -31,9 +33,16 @@ def main() -> None:
     ]
     for section_name, section in report.items():
         if isinstance(section, dict):
-            lines += [f"## {section_name.title()}", "", markdown_table(section), ""]
-    Path(args.output).write_text("
-".join(lines), encoding="utf-8")
+            lines.extend(
+                [
+                    f"## {section_name.title()}",
+                    "",
+                    markdown_table(section),
+                    "",
+                ]
+            )
+
+    Path(args.output).write_text("\n".join(lines), encoding="utf-8")
     print(f"Wrote {args.output}")
 
 
