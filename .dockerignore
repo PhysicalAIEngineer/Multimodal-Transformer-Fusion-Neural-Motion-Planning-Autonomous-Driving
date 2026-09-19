@@ -1,0 +1,11 @@
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.git/
+*.ipynb
+outputs/
+dataset/
+*.zip
+*.mp4
+*.png
+*.jpg
