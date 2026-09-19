@@ -59,7 +59,7 @@ Planning Head:
 
 ##  Project Structure
 
-``
+```
 Multimodal-Transformer-Fusion-Neural-Motion-Planning-Autonomous-Driving/
 │
 ├── .github/
@@ -133,7 +133,7 @@ Multimodal-Transformer-Fusion-Neural-Motion-Planning-Autonomous-Driving/
 ├── pyproject.toml
 ├── requirements-api.txt
 └── requirements-model.txt
-``
+```
 
 ---
 
