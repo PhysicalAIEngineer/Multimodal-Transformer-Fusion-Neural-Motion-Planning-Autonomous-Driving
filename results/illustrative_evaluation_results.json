@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0",
+  "status": "illustrative_example_not_measured",
+  "note": "The values below are realistic-looking example values for documentation/demo purposes. They were not generated from a completed neural-model CARLA benchmark in this repository and must not be presented as measured project results.",
+  "experiment": {
+    "project": "Multimodal Transformer Fusion + Neural Motion Planning Autonomous Driving",
+    "modality": "RGB + LiDAR",
+    "backbone": "RegNetY-032",
+    "fusion": "TransFuser-style transformer cross-modal attention",
+    "planner": "GRU waypoint prediction",
+    "simulator": "CARLA",
+    "seed": 1,
+    "routes": 10,
+    "episodes": 10
+  },
+  "perception": {
+    "3D_detection_AP_percent": 68.4,
+    "BEV_detection_AP_percent": 72.1,
+    "semantic_segmentation_mIoU_percent": 78.6,
+    "depth_MAE_m": 1.42,
+    "depth_RMSE_m": 2.31
+  },
+  "planning": {
+    "waypoint_ADE_m": 1.72,
+    "waypoint_FDE_m": 3.08,
+    "trajectory_collision_rate_percent": 4.8,
+    "route_completion_percent": 91.3,
+    "offroad_rate_percent": 3.7
+  },
+  "driving": {
+    "collision_count": 3,
+    "red_light_violations": 2,
+    "lane_departures": 7,
+    "route_completion_percent": 91.3,
+    "intervention_recovery_count": 5
+  },
+  "system_runtime": {
+    "fps": 27.8,
+    "end_to_end_latency_ms_p50": 35.9,
+    "end_to_end_latency_ms_p95": 41.7,
+    "model_inference_latency_ms_p50": 24.6,
+    "model_inference_latency_ms_p95": 29.8,
+    "gpu_memory_peak_mb": 6120
+  },
+  "fusion_ablation": {
+    "RGB_only": {
+      "3D_detection_AP_percent": 54.7,
+      "BEV_detection_AP_percent": 58.9,
+      "semantic_segmentation_mIoU_percent": 73.1,
+      "depth_RMSE_m": 2.74,
+      "waypoint_ADE_m": 2.31
+    },
+    "LiDAR_only": {
+      "3D_detection_AP_percent": 63.5,
+      "BEV_detection_AP_percent": 68.2,
+      "semantic_segmentation_mIoU_percent": 69.4,
+      "depth_RMSE_m": 3.12,
+      "waypoint_ADE_m": 2.02
+    },
+    "RGB_LiDAR": {
+      "3D_detection_AP_percent": 68.4,
+      "BEV_detection_AP_percent": 72.1,
+      "semantic_segmentation_mIoU_percent": 78.6,
+      "depth_RMSE_m": 2.31,
+      "waypoint_ADE_m": 1.72
+    }
+  },
+  "reproducibility": {
+    "checkpoint_status": "invalid_or_placeholder_checkpoint_currently_in_repo",
+    "checkpoint_sha256": null,
+    "carla_version": null,
+    "map": null,
+    "weather": null,
+    "sensor_configuration": null,
+    "hardware": null
+  }
+}
