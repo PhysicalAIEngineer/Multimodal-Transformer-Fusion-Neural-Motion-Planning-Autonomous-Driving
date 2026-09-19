@@ -73,7 +73,8 @@ class ModelRuntime:
             self.model_version = self._artifact_version(path)
             self.last_error = None
 
-    def predict(self, payload: dict[str, Any]) -> dict[str, Any]:
+    def predict_tensors(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Run inference and return raw model outputs for local evaluation."""
         self.load()
         assert self._model is not None and self._torch is not None
         torch = self._torch
@@ -84,8 +85,16 @@ class ModelRuntime:
                 .reshape(item["shape"])
                 .to(settings.resolved_device)
             )
+        if settings.resolved_device.startswith("cuda"):
+            torch.cuda.synchronize()
         with torch.inference_mode():
             _, output = self._model(tensors)
+        if settings.resolved_device.startswith("cuda"):
+            torch.cuda.synchronize()
+        return output
+
+    def predict(self, payload: dict[str, Any]) -> dict[str, Any]:
+        output = self.predict_tensors(payload)
         pred_semantic = output.get("pred_semantic")
         pred_depth = output.get("pred_depth")
         pred_bev = output.get("pred_bev")
