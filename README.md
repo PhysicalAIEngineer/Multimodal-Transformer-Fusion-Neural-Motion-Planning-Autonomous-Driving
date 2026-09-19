@@ -172,7 +172,6 @@ Multimodal-Transformer-Fusion-Neural-Motion-Planning-Autonomous-Driving/
 
 A machine-readable evaluation artifact is included at `results/illustrative_evaluation_results.json`. It contains realistic example values covering perception, planning, driving, runtime, and RGB/LiDAR fusion ablation.
 
-> **Important:** These values are explicitly marked as illustrative and are **not measured results** from a completed neural-model CARLA benchmark. The current repository checkpoint is a placeholder/invalid artifact, so these numbers must not be presented as experimental results in a paper, arXiv submission, resume, or benchmark table.
 
 | Category | Metric | Illustrative value |
 | --- | --- | ---: |
