@@ -89,8 +89,7 @@ def aggregate_jsonl(input_path: str | Path, output_path: str | Path) -> dict[str
         if line.strip()
     ]
     report = aggregate_rows(rows)
-    Path(output_path).write_text(json.dumps(report, indent=2) + "
-", encoding="utf-8")
+    Path(output_path).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return report
 
 
