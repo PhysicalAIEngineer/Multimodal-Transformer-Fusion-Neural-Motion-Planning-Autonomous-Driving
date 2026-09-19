@@ -9,7 +9,7 @@ from production.metrics import EvaluationAccumulator, mean_iou, route_completion
 def test_segmentation_miou() -> None:
     prediction = np.array([[0, 1], [1, 1]])
     target = np.array([[0, 1], [0, 1]])
-    assert mean_iou(prediction, target) == 7.0 / 12.0
+    assert np.isclose(mean_iou(prediction, target), 7.0 / 12.0)
 
 
 def test_waypoint_metrics() -> None:
