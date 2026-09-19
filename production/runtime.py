@@ -43,6 +43,8 @@ class ModelRuntime:
             config_module = importlib.import_module("config")
             model_module = importlib.import_module("model")
             config = config_module.GlobalConfig()
+            # The existing model only exposes inference tensors when debug outputs are enabled.
+            config.debug = True
             device = torch.device(settings.resolved_device)
             model = model_module.LidarCenterNet(config, device, config.backbone,
                 image_architecture="regnety_032", lidar_architecture="regnety_032", estimate_loss=False)
