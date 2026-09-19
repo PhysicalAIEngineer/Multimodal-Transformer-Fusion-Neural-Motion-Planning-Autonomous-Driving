@@ -1,0 +1,18 @@
+services:
+  inference:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      MODEL_PATH: /app/models/transfuser_regnet032_seed1_39.pth
+      DEVICE: cpu
+      LOG_LEVEL: info
+    volumes:
+      - ./models:/app/models:ro
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
