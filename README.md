@@ -269,3 +269,24 @@ For model execution, install requirements-model.txt, which separates the large P
 ## Safety boundary
 
 This remains a research and engineering platform, not a safety-certified autonomous-driving controller. Real-vehicle deployment requires independent safety monitors, redundancy, fail-safe behavior, simulation, verification/validation, and vehicle-level safety constraints.
+
+
+## Research Evaluation Framework
+
+Evaluation is now a first-class repository component. The framework covers:
+
+| Component | Metrics |
+| --- | --- |
+| Perception | 3D Detection AP, BEV Detection AP, Segmentation mIoU, Depth MAE/RMSE |
+| Planning | Waypoint ADE/FDE, Trajectory Collision Rate, Route Completion, Off-road Rate |
+| System | FPS, End-to-End p50/p95, GPU Memory/Utilization, Preprocessing/Inference/Rendering Latency |
+| Driving | Collision Count, Red-light Violations, Lane Departures, Route Completion, Intervention/Recovery Count |
+| Fusion | RGB-only vs LiDAR-only vs RGB+LiDAR ablation |
+
+Run the JSONL evaluator with:
+
+python scripts/evaluate_jsonl.py --input evaluation_records.jsonl --output evaluation_results.json
+
+The benchmark protocol records checkpoint hash, repository commit, CARLA version, routes, sensor configuration, seed, and hardware so results can be reproduced. See EVALUATION.md and configs/evaluation.example.json.
+
+Metric implementations intentionally do not fabricate performance values; measured CARLA runs must populate the report.
