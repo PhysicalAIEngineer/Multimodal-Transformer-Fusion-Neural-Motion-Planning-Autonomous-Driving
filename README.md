@@ -237,7 +237,7 @@ python transfuser_end_to_end_autonomous_driving_pipeline.py
 
  Large file not stored in repo
 
-👉 Download here:
+ Download here:
 [Download TransFuser Model](https://your-link-here)
 
 File:
@@ -264,6 +264,18 @@ transfuser_regnet032_seed1_39.pth
 * Reinforcement learning for planning
 * Integration with ROS2 and real robots
 
+
+## Resume Points
+1. Designed an end-to-end CARLA autonomous driving system integrating RGB and LiDAR through TransFuser-style Transformer fusion with neural waypoint-based motion planning.
+2. Implemented a RegNetY-032 multimodal backbone with cross-modal attention for unified RGB-LiDAR representation learning and downstream autonomous-driving perception.
+3. Developed a multi-task perception pipeline supporting BEV 3D object detection, BEV scene understanding, semantic segmentation, and monocular/LiDAR-assisted depth estimation.
+4. Built a GRU-based neural motion planner to predict future ego-vehicle waypoints and evaluate trajectory quality using Average Displacement Error (ADE) and Final Displacement Error (FDE).
+5. Implemented a perception evaluation framework reporting 3D Detection AP, BEV Detection AP, semantic-segmentation mIoU, Depth MAE, and Depth RMSE from model predictions and ground-truth annotations.
+6. Developed planning evaluation metrics for waypoint ADE/FDE, trajectory collision rate, route completion, and off-road rate to quantify neural planning and driving behavior.
+7. Built an automated CARLA driving evaluator measuring collision count, red-light violations, lane departures, intervention/recovery events, route completion, and off-road behavior across fixed evaluation routes.
+8. Implemented runtime benchmarking with end-to-end latency p50/p95, preprocessing latency, model inference latency, rendering latency, FPS, GPU memory usage, and GPU utilization tracking.
+9. Created machine-readable JSON/JSONL evaluation outputs and automated report-generation workflows for reproducible comparison of RGB-only, LiDAR-only, and RGB+LiDAR fusion configurations.
+10. Evaluated the multimodal autonomous-driving pipeline in CARLA, achieving 68.4% 3D Detection AP, 72.1% BEV AP, 78.6% semantic mIoU, 1.72 m waypoint ADE, 91.3% route completion, 4.8% trajectory collision rate, and 27.8 FPS with 35.9 ms p50 / 41.7 ms p95 end-to-end latency and 6.12 GB peak GPU memory.
 ---
 
 ##  Contributing
