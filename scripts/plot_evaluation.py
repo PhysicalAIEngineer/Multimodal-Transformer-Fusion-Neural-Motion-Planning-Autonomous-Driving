@@ -9,7 +9,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 
-def flatten(prefix: str, value: dict, output: dict[str, float]) -> None:
+def flatten(prefix: str, value: dict[str, object], output: dict[str, float]) -> None:
     for key, item in value.items():
         name = f"{prefix}.{key}" if prefix else key
         if isinstance(item, dict):
