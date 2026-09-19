@@ -222,3 +222,50 @@ Perception Engineer | Physical AI & Autonomous Systems
 If you like this project, give it a ⭐ on GitHub!
 
 ---
+
+
+---
+
+# Production Deployment Layer
+
+This branch adds a production-oriented serving layer around the existing research implementation without replacing the research model.
+
+## Production architecture
+
+CARLA / Sensor Preprocessing → RGB + LiDAR + Target + Speed → FastAPI /predict → LidarCenterNet / TransFuser → Waypoints + Detection + Semantic Segmentation + Depth + BEV
+
+Operational metrics are exposed through Prometheus at /metrics.
+
+## Production components
+
+- production/api.py — FastAPI liveness, readiness, model metadata, inference and metrics endpoints.
+- production/runtime.py — lazy, thread-safe checkpoint loading and inference runtime.
+- production/schemas.py — explicit tensor input/output contract.
+- production/settings.py — environment-driven model path, device and server configuration.
+- production/metrics.py — Prometheus request, error, latency and model-health metrics.
+- Dockerfile — containerized inference service.
+- docker-compose.production.yml — deployment configuration with a read-only model volume.
+- .github/workflows/production.yml — lint, compilation and unit-test CI gates.
+- models/README.md — checkpoint provenance and artifact requirements.
+
+See PRODUCTION.md for deployment and validation instructions.
+
+## Important model-artifact validation
+
+The repository currently contains a 134-byte TransFuser .pth file. That is not a usable trained checkpoint. The production runtime therefore refuses readiness when the artifact is absent or suspiciously small instead of silently serving untrained/random weights.
+
+Provide the real trained checkpoint through secure artifact storage, Git LFS, or a mounted model volume before using /ready or /predict.
+
+## Local production validation
+
+Install the lightweight API dependencies and run:
+
+python -m ruff check production tests
+python -m compileall -q production "Helper Scripts"
+pytest -q
+
+For model execution, install requirements-model.txt, which separates the large PyTorch dependency from API-only CI.
+
+## Safety boundary
+
+This remains a research and engineering platform, not a safety-certified autonomous-driving controller. Real-vehicle deployment requires independent safety monitors, redundancy, fail-safe behavior, simulation, verification/validation, and vehicle-level safety constraints.

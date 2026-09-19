@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=70"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "multimodal-autonomous-driving"
+version = "1.0.0"
+description = "Production serving layer for multimodal transformer fusion and neural motion planning"
+requires-python = ">=3.11,<3.14"
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+[tool.pytest.ini_options]
+testpaths = ["tests"]
